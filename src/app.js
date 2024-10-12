@@ -1,46 +1,66 @@
 const express = require('express')
 
 const app = express();
+const {adminauth, userauth} = require("./middlewares/auth")
 
-app.get("/user", (req, res, next) => {
-    console.log("Route handled successfully");
-    //res.send("Response")
-    next();
-},
-[(req, res, next) => {
-    console.log("2nd Route handled successfully");
-    //res.send("2nd Response!")
-    next();
-},
-(req, res, next) => {
-    console.log("3rd Route handled successfully");
-    //res.send("3rd Response!")
-    next();
-}],
-(req, res, next) => {
-    console.log("4th Route handled successfully");
-    //res.send("4th Response!")
-    next();
-},
-(req, res, next) => {
-    console.log("5th Route handled successfully");
-    res.send("5th Response!")
-    //next();
+app.use("/admin", adminauth)
+
+app.post("/user/login", (req, res) => {
+    res.send("User Logged in Successfully")
+})
+app.use("/user", userauth, (req, res) => {
+    res.send("Hello")
+})
+app.get("/admin/alluserdata", (req, res) => {
+    res.send("All user data");
+})
+
+app.get("/admin/deleteuser", (req, res) => {
+    res.send("Delete user data");
 })
 
 
 
 
+// app.use("/", (req, res, next) => {
+//     next();
+//     //res.send("RESPONSE")
+// })
 
+// app.get("/user", (req, res, next)=>{
+//     next();
+//     //res.send("1st response")
+// })
 
-
-
-
-
-
-
-
-
+// app.get("/user", (req, res) => {
+//     console.log("Route handled successfully");
+//     res.send("2nd response")
+// })
+// app.get("/user", (req, res, next) => {
+//     console.log("Route handled successfully");
+//     //res.send("Response")
+//     next();
+// },
+// [(req, res, next) => {
+//     console.log("2nd Route handled successfully");
+//     //res.send("2nd Response!")
+//     next();
+// },
+// (req, res, next) => {
+//     console.log("3rd Route handled successfully");
+//     //res.send("3rd Response!")
+//     next();
+// }],
+// (req, res, next) => {
+//     console.log("4th Route handled successfully");
+//     //res.send("4th Response!")
+//     next();
+// },
+// (req, res, next) => {
+//     console.log("5th Route handled successfully");
+//     res.send("5th Response!")
+//     //next();
+// })
 
 // // ORDER MATTERS otherwise only this response would be printed in each of the HTTP methods
 // // app.use("/user", (req, res)=>{
