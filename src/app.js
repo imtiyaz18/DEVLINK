@@ -1,96 +1,85 @@
 const express = require('express')
-
+const connectDB = require("./config/database")
 const app = express();
-const {adminauth, userauth} = require("./middlewares/auth")
+const User = require("./models/user")
 
-app.use("/admin", adminauth)
+app.use(express.json()); // we are using it as middleware to read json data and log it here on console
+app.post("/signup", async (req, res) => {
+    //console.log(req.body);
+    
+    // creating a new insatance of User Model
+    const user = new User(req.body);
+    try{
+    await user.save();
+    res.send("User added Successfully!")
+    } catch(err){
+        res.status(400).send("Error saving the user" + err.message);
+    }
+});
 
-app.post("/user/login", (req, res) => {
-    res.send("User Logged in Successfully")
+app.get("/user", async (req, res) => {
+    const userEmail = req.body.emailId;
+
+    try{
+    const user = await User.find({emailId : userEmail});
+    if(user.length === 0){
+        res.status(404).send("User not found")
+    } else{
+        res.send(user);
+    }
+    }
+    catch(err){
+        res.status(400).send("Something went wrong");
+    }
 })
-app.use("/user", userauth, (req, res) => {
-    res.send("Hello")
+
+//feed - get all the users
+app.get("/feed", async (req, res) => {
+    try{
+        const users = await User.find({});
+        if(users.length === 0){
+            res.status(404).send("User not found")
+        } else{
+            res.send(users);
+        }
+        }
+        catch(err){
+            res.status(400).send("Something went wrong");
+        }
 })
-app.get("/admin/alluserdata", (req, res) => {
-    res.send("All user data");
+
+// delete a user from the database
+app.delete("/user", async (req, res) => {
+    const id = req.body.userId;
+    try{
+        const user = await User.findByIdAndDelete(id);
+
+        res.send("User deleted successfully")
+    } catch(err){
+        res.status(400).send("Something went wrong")
+    }
 })
 
-app.get("/admin/deleteuser", (req, res) => {
-    res.send("Delete user data");
+// update details of the user
+app.patch("/user", async (req, res) => {
+    const userId = req.body.userId;
+    const data = req.body;
+    try{
+        const user = await User.findByIdAndUpdate({_id: userId}, data, {returnDocument: "after", runValidators: true, });
+        console.log(user);
+        
+        res.send("User updated successfully")
+    } catch(err){
+        res.status(400).send("UPDATE FAILED:" + err.message);
+    }
 })
 
+connectDB().then(()=>{
+    console.log("Database connection is established");
+    app.listen(7777, () => {
+        console.log("Server is successfully listening on 7777...");
+    })
+}).catch((err)=>{
+    console.error("Database cannot be connected");
+});
 
-
-
-// app.use("/", (req, res, next) => {
-//     next();
-//     //res.send("RESPONSE")
-// })
-
-// app.get("/user", (req, res, next)=>{
-//     next();
-//     //res.send("1st response")
-// })
-
-// app.get("/user", (req, res) => {
-//     console.log("Route handled successfully");
-//     res.send("2nd response")
-// })
-// app.get("/user", (req, res, next) => {
-//     console.log("Route handled successfully");
-//     //res.send("Response")
-//     next();
-// },
-// [(req, res, next) => {
-//     console.log("2nd Route handled successfully");
-//     //res.send("2nd Response!")
-//     next();
-// },
-// (req, res, next) => {
-//     console.log("3rd Route handled successfully");
-//     //res.send("3rd Response!")
-//     next();
-// }],
-// (req, res, next) => {
-//     console.log("4th Route handled successfully");
-//     //res.send("4th Response!")
-//     next();
-// },
-// (req, res, next) => {
-//     console.log("5th Route handled successfully");
-//     res.send("5th Response!")
-//     //next();
-// })
-
-// // ORDER MATTERS otherwise only this response would be printed in each of the HTTP methods
-// // app.use("/user", (req, res)=>{
-// //     res.send("hello from the server")
-// // })
-
-// // this will handle only GET call to /user
-// app.get("/user", (req, res) => {
-//     res.send("This is GET Method")
-// })
-
-// //this will call only POST method
-// app.post("/user", (req, res) => {
-//     // saving data to DB
-//     res.send("Data sent to DATABASE successfully");
-// })
- 
-// app.delete("/user", (req, res) => {
-//     res.send("Deleted successfully");
-// })
-
-// // this will match all the HTTP method API calls to /user
-// app.use("/user", (req, res)=>{
-//     res.send("hello from the server")
-// })
-
-// // app.use("/", (req, res)=>{
-// //     res.send("HELLO WORLD!")
-// // })
-
-app.listen(7777, () => {
-    console.log("Server is successfully listening on 7777...");
-})
