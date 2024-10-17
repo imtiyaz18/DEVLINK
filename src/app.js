@@ -2,18 +2,31 @@ const express = require('express')
 const connectDB = require("./config/database")
 const app = express();
 const User = require("./models/user")
+const {validateSignUpData} = require("./utils/validation")
+const bcrypt = require("bcrypt")
 
 app.use(express.json()); // we are using it as middleware to read json data and log it here on console
 app.post("/signup", async (req, res) => {
-    //console.log(req.body);
-    
-    // creating a new insatance of User Model
-    const user = new User(req.body);
     try{
+        // Validation of Data
+        validateSignUpData(req);
+        
+        const {firstName, lastName, emailId, password} = req.body;
+
+        // Encrypt the password
+        const passwordHash = bcrypt.hashSync(password, 10);
+
+        // creating a new insatance of User Model
+        const user = new User({
+            firstName,
+            lastName, 
+            emailId,
+            password: passwordHash,
+        });
     await user.save();
     res.send("User added Successfully!")
     } catch(err){
-        res.status(400).send("Error saving the user" + err.message);
+        res.status(400).send("ERROR : " + err.message);
     }
 });
 
