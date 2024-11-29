@@ -10,7 +10,7 @@ const cors = require('cors')
 const PORT = process.env.PORT || 7777;
 
 app.use(cors({
-    origin: "http://localhost:5173",
+    origin: "https://devtinderfrontend.vercel.app/",
     credentials: true,
 }));
 app.use(express.json()); // we are using it as middleware to read json data and log it here on console
