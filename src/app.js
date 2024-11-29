@@ -25,10 +25,6 @@ app.use('/', profileRouter);
 app.use('/', requestRouter);
 app.use('/', userRouter)
 
-app.get('/', (req, res) => {
-    res.send('Backend is running successfully!');
-});
-
 connectDB().then(() => {
     console.log("Database connection is established");
     app.listen(PORT, () => {
